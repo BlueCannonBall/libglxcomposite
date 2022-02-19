@@ -375,8 +375,21 @@ extern "C" {
     pub fn compositor_destroy(compositor: *mut Compositor);
 }
 extern "C" {
+    pub fn compositor_free(compositor: *mut Compositor);
+}
+extern "C" {
     pub fn get_root_window(compositor: *mut Compositor) -> Window;
 }
 extern "C" {
     pub fn get_composite_window(compositor: *mut Compositor) -> Window;
+}
+extern "C" {
+    pub fn get_all_windows(
+        compositor: *mut Compositor,
+        windows_ret: *mut *mut Window,
+        nwindows_ret: *mut ::std::os::raw::c_uint,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn free_windows(windows: *mut Window);
 }
