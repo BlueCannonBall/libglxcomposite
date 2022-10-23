@@ -10,62 +10,6 @@ pub struct Compositor {
 }
 pub type Window = ::std::os::raw::c_ulong;
 pub type GLXPixmap = ::std::os::raw::c_ulong;
-pub const EventType_EVENT_NONE: EventType = 0;
-pub const EventType_EVENT_CREATE: EventType = 1;
-pub const EventType_EVENT_DESTROY: EventType = 2;
-pub const EventType_EVENT_MAP: EventType = 3;
-pub const EventType_EVENT_UNMAP: EventType = 4;
-pub type EventType = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct Event {
-    pub type_: EventType,
-    pub event: Window,
-    pub window: Window,
-}
-#[test]
-fn bindgen_test_layout_Event() {
-    assert_eq!(
-        ::std::mem::size_of::<Event>(),
-        24usize,
-        concat!("Size of: ", stringify!(Event))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<Event>(),
-        8usize,
-        concat!("Alignment of ", stringify!(Event))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Event>())).type_ as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Event),
-            "::",
-            stringify!(type_)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Event>())).event as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Event),
-            "::",
-            stringify!(event)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Event>())).window as *const _ as usize },
-        16usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(Event),
-            "::",
-            stringify!(window)
-        )
-    );
-}
 extern "C" {
     pub fn create_compositor(display: *const ::std::os::raw::c_char) -> *mut Compositor;
 }
@@ -131,9 +75,6 @@ extern "C" {
 }
 extern "C" {
     pub fn free_windows(windows: *mut Window);
-}
-extern "C" {
-    pub fn poll_events(compositor: *mut Compositor) -> Event;
 }
 extern "C" {
     pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;

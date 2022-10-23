@@ -207,44 +207,6 @@ extern "C" {
         XFree(windows);
     }
 
-    Event poll_events(Compositor* compositor) {
-        Event ret;
-        XEvent ev;
-
-        XNextEvent(compositor->xdpy, &ev);
-        switch (ev.type) {
-            default:
-                ret.type = EVENT_NONE;
-                break;
-
-            case CreateNotify:
-                ret.type = EVENT_CREATE;
-                ret.event = ev.xcreatewindow.parent;
-                ret.window = ev.xcreatewindow.window;
-                break;
-
-            case DestroyNotify:
-                ret.type = EVENT_DESTROY;
-                ret.event = ev.xdestroywindow.event;
-                ret.window = ev.xdestroywindow.window;
-                break;
-
-            case MapNotify:
-                ret.type = EVENT_MAP;
-                ret.event = ev.xmap.event;
-                ret.window = ev.xmap.window;
-                break;
-
-            case UnmapNotify:
-                ret.type = EVENT_UNMAP;
-                ret.event = ev.xunmap.event;
-                ret.window = ev.xunmap.window;
-                break;
-        }
-
-        return ret;
-    }
-
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window) {
         XWindowAttributes attribs;
         XGetWindowAttributes(compositor->xdpy, window, &attribs);
