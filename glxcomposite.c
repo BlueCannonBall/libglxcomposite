@@ -119,6 +119,18 @@ extern "C" {
         return attribs.depth;
     }
 
+    int get_window_x(Compositor* compositor, Window window) {
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.x;
+    }
+
+    int get_window_y(Compositor* compositor, Window window) {
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.y;
+    }
+
     void swap_buffers(Compositor* compositor) {
         glXSwapBuffers(compositor->xdpy, compositor->overlay);
     }
