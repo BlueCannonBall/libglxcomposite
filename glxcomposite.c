@@ -173,7 +173,7 @@ extern "C" {
     }
 
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret) {
-        *windows_ret = malloc(0);
+        *windows_ret = malloc(1 /* Just enough to be realloced */);
         *nwindows_ret = 0;
         return get_windows_recursive(compositor, compositor->root, windows_ret, nwindows_ret);
     }
