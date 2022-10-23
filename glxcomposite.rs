@@ -7,6 +7,49 @@ pub struct Compositor {
 }
 pub type Window = ::std::os::raw::c_ulong;
 pub type GLXPixmap = ::std::os::raw::c_ulong;
+pub const MappingEventType_MAPPING_EVENT_NONE: MappingEventType = 0;
+pub const MappingEventType_MAPPING_EVENT_MAPPED: MappingEventType = 1;
+pub const MappingEventType_MAPPING_EVENT_UNMAPPED: MappingEventType = 2;
+pub type MappingEventType = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct MappingEvent {
+    pub type_: MappingEventType,
+    pub window: Window,
+}
+#[test]
+fn bindgen_test_layout_MappingEvent() {
+    assert_eq!(
+        ::std::mem::size_of::<MappingEvent>(),
+        16usize,
+        concat!("Size of: ", stringify!(MappingEvent))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<MappingEvent>(),
+        8usize,
+        concat!("Alignment of ", stringify!(MappingEvent))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<MappingEvent>())).type_ as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(MappingEvent),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<MappingEvent>())).window as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(MappingEvent),
+            "::",
+            stringify!(window)
+        )
+    );
+}
 extern "C" {
     pub fn create_compositor(display: *const ::std::os::raw::c_char) -> *mut Compositor;
 }
@@ -60,6 +103,9 @@ extern "C" {
 }
 extern "C" {
     pub fn free_windows(windows: *mut Window);
+}
+extern "C" {
+    pub fn poll_mapping_events(compositor: *mut Compositor) -> MappingEvent;
 }
 extern "C" {
     pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;

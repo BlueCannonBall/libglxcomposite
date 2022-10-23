@@ -5,6 +5,17 @@ typedef struct Compositor Compositor;
 typedef unsigned long Window;
 typedef unsigned long GLXPixmap;
 
+typedef enum MappingEventType {
+    MAPPING_EVENT_NONE,
+    MAPPING_EVENT_MAPPED,
+    MAPPING_EVENT_UNMAPPED,
+} MappingEventType;
+
+typedef struct MappingEvent {
+    MappingEventType type;
+    Window window;
+} MappingEvent;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -29,6 +40,8 @@ extern "C" {
     int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows);
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
     void free_windows(Window* windows);
+
+    MappingEvent poll_mapping_events(Compositor* compositor);
 
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window);
     void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap);

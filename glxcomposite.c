@@ -182,6 +182,28 @@ extern "C" {
         XFree(windows);
     }
 
+    MappingEvent poll_mapping_events(Compositor* compositor) {
+        MappingEvent ret;
+        XEvent ev;
+        XNextEvent(compositor->xdpy, &ev);
+        switch (ev.type) {
+            default:
+                ret.type = MAPPING_EVENT_NONE;
+                break;
+
+            case MapNotify:
+                ret.type = MAPPING_EVENT_MAPPED;
+                ret.window = ev.xmap.window;
+                break;
+
+            case UnmapNotify:
+                ret.type = MAPPING_EVENT_UNMAPPED;
+                ret.window = ev.xunmap.window;
+                break;
+        }
+        return ret;
+    }
+
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window) {
         XWindowAttributes attribs;
         XGetWindowAttributes(compositor->xdpy, window, &attribs);
