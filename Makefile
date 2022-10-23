@@ -1,19 +1,20 @@
 CC = gcc
-CFLAGS = -Wall -O2 -s -flto -ansi -shared -fPIC
-TARGET = libcomposite.so
+CFLAGS = -Wall -O2 -flto -ansi -shared -fPIC
+TARGET = libglxcomposite.so
+PREFIX = /usr/local
 
 .PHONY: all clean install
 
-all: $(TARGET) composite.rs
+all: $(TARGET) glxcomposite.rs
 
-$(TARGET): composite.c composite.h
+$(TARGET): glxcomposite.c glxcomposite.h
 	$(CC) $< $(CFLAGS) -o $@
 
-composite.rs: composite.h
+glxcomposite.rs: glxcomposite.h
 	bindgen $< -o $@
 
 clean:
-	rm -f $(TARGET) composite.rs
+	rm -f $(TARGET) glxcomposite.rs
 
 install:
-	cp $(TARGET) /usr/lib/
+	cp $(TARGET) $(PREFIX)/lib/
