@@ -102,21 +102,21 @@ extern "C" {
     }
 
     int get_window_width(Compositor* compositor, Window window) {
-        XWindowAttributes attrs;
-        XGetWindowAttributes(compositor->xdpy, window, &attrs);
-        return attrs.width;
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.width;
     }
 
     int get_window_height(Compositor* compositor, Window window) {
-        XWindowAttributes attrs;
-        XGetWindowAttributes(compositor->xdpy, window, &attrs);
-        return attrs.height;
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.height;
     }
 
     int get_window_depth(Compositor* compositor, Window window) {
-        XWindowAttributes attrs;
-        XGetWindowAttributes(compositor->xdpy, window, &attrs);
-        return attrs.depth;
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.depth;
     }
 
     void swap_buffers(Compositor* compositor) {
