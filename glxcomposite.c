@@ -101,6 +101,28 @@ extern "C" {
         return compositor->overlay;
     }
 
+    int get_window_width(Compositor* compositor, Window window) {
+        XWindowAttributes attrs;
+        XGetWindowAttributes(compositor->xdpy, window, &attrs);
+        return attrs.width;
+    }
+
+    int get_window_height(Compositor* compositor, Window window) {
+        XWindowAttributes attrs;
+        XGetWindowAttributes(compositor->xdpy, window, &attrs);
+        return attrs.height;
+    }
+
+    int get_window_depth(Compositor* compositor, Window window) {
+        XWindowAttributes attrs;
+        XGetWindowAttributes(compositor->xdpy, window, &attrs);
+        return attrs.depth;
+    }
+
+    void swap_buffers(Compositor* compositor) {
+        glXSwapBuffers(compositor->xdpy, compositor->overlay);
+    }
+
     int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows) {
         Window root_ret;
         Window parent_ret;

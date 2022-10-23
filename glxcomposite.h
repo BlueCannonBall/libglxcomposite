@@ -17,6 +17,12 @@ extern "C" {
     Window get_root_window(Compositor* compositor);
     Window get_composite_window(Compositor* compositor);
 
+    int get_window_width(Compositor* compositor, Window window);
+    int get_window_height(Compositor* compositor, Window window);
+    int get_window_depth(Compositor* compositor, Window window);
+
+    void swap_buffers(Compositor* compositor);
+
     int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows);
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
     void free_windows(Window* windows);

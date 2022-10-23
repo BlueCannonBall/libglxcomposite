@@ -26,6 +26,18 @@ extern "C" {
     pub fn get_composite_window(compositor: *mut Compositor) -> Window;
 }
 extern "C" {
+    pub fn get_window_width(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_window_height(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_window_depth(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn swap_buffers(compositor: *mut Compositor);
+}
+extern "C" {
     pub fn get_windows_recursive(
         compositor: *mut Compositor,
         parent: Window,
