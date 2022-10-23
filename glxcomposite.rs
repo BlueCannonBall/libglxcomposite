@@ -65,6 +65,9 @@ extern "C" {
     pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;
 }
 extern "C" {
+    pub fn destroy_glx_pixmap(compositor: *mut Compositor, glx_pixmap: GLXPixmap);
+}
+extern "C" {
     pub fn glx_bind_window_texture(compositor: *mut Compositor, glx_pixmap: GLXPixmap);
 }
 extern "C" {

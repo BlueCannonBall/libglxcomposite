@@ -214,6 +214,10 @@ extern "C" {
         return glXCreatePixmap(compositor->xdpy, fbc, XCompositeNameWindowPixmap(compositor->xdpy, window), pixmap_attributes);
     }
 
+    void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap) {
+        glXDestroyPixmap(compositor->xdpy, glx_pixmap);
+    }
+
     void glx_bind_window_texture(Compositor* compositor, GLXPixmap glx_pixmap) {
         compositor->glXBindTexImageEXT(compositor->xdpy, glx_pixmap, GLX_FRONT_LEFT_EXT, NULL);
     }
