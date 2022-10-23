@@ -77,6 +77,11 @@ extern "C" {
     pub fn free_windows(windows: *mut Window);
 }
 extern "C" {
+    pub fn glx_get_proc_address(
+        name: *const ::std::os::raw::c_uchar,
+    ) -> ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_uchar, ...)>;
+}
+extern "C" {
     pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;
 }
 extern "C" {
