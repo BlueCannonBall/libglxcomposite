@@ -38,6 +38,8 @@ extern "C" {
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
     void free_windows(Window* windows);
 
+    void (*glx_get_proc_address(const unsigned char* name))();
+
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window);
     void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap);
     void glx_bind_window_texture(Compositor* compositor, GLXPixmap glx_pixmap);

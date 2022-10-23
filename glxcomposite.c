@@ -204,7 +204,11 @@ extern "C" {
     }
 
     void free_windows(Window* windows) {
-        XFree(windows);
+        free(windows);
+    }
+
+    void (*glx_get_proc_address(const unsigned char* name))() {
+        return glXGetProcAddress(name);
     }
 
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window) {
