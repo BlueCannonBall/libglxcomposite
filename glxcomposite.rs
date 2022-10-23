@@ -35,6 +35,12 @@ extern "C" {
     pub fn get_window_depth(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
 }
 extern "C" {
+    pub fn get_window_x(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_window_y(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
     pub fn swap_buffers(compositor: *mut Compositor);
 }
 extern "C" {

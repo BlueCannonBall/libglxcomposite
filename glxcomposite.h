@@ -21,6 +21,9 @@ extern "C" {
     int get_window_height(Compositor* compositor, Window window);
     int get_window_depth(Compositor* compositor, Window window);
 
+    int get_window_x(Compositor* compositor, Window window);
+    int get_window_y(Compositor* compositor, Window window);
+
     void swap_buffers(Compositor* compositor);
 
     int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows);
