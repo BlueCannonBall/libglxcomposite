@@ -1,11 +1,9 @@
 #include "glxcomposite.h"
 #include <GL/glx.h>
-#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/shape.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,7 +41,16 @@ extern "C" {
         return compositor;
     }
 
+    int x_error_handler(Display* xdpy, XErrorEvent* ev) {
+        char error_string[128];
+        XGetErrorText(xdpy, ev->error_code, error_string, sizeof(error_string));
+        fprintf(stderr, "libglxcomposite: An X error has occured: %s (error=%u, major=%u, minor=%u)\n", error_string, ev->error_code, ev->request_code, ev->minor_code);
+        return 0; /* This value is ignored */
+    }
+
     int init_compositor(Compositor* compositor) {
+        XSetErrorHandler(&x_error_handler);
+
         XCompositeRedirectSubwindows(compositor->xdpy, compositor->root, CompositeRedirectAutomatic);
 
         XserverRegion region = XFixesCreateRegion(compositor->xdpy, NULL, 0);
@@ -93,6 +100,18 @@ extern "C" {
         free(compositor);
     }
 
+    void init_threads(void) {
+        XInitThreads();
+    }
+
+    void lock_display(Compositor* compositor) {
+        XLockDisplay(compositor->xdpy);
+    }
+
+    void unlock_display(Compositor* compositor) {
+        XUnlockDisplay(compositor->xdpy);
+    }
+
     Window get_root_window(Compositor* compositor) {
         return compositor->root;
     }
@@ -131,6 +150,12 @@ extern "C" {
         return attribs.y;
     }
 
+    bool is_window_visible(Compositor* compositor, Window window) {
+        XWindowAttributes attribs;
+        XGetWindowAttributes(compositor->xdpy, window, &attribs);
+        return attribs.map_state == IsViewable;
+    }
+
     void swap_buffers(Compositor* compositor) {
         glXSwapBuffers(compositor->xdpy, compositor->overlay);
     }
@@ -154,11 +179,11 @@ extern "C" {
             fprintf(stderr, "libglxcomposite: XQueryTree() failed\n");
             return 1;
         }
-        if (nchildren == 0 || children == NULL) {
+        if (children == NULL || nchildren == 0) {
             return 0;
         }
 
-        *windows = realloc(*windows, *nwindows + nchildren);
+        *windows = realloc(*windows, (*nwindows + nchildren) * sizeof(Window));
         memcpy(*windows + *nwindows, children, nchildren * sizeof(Window));
         *nwindows += nchildren;
 
@@ -173,7 +198,7 @@ extern "C" {
     }
 
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret) {
-        *windows_ret = malloc(1 /* Just enough to be realloced */);
+        *windows_ret = malloc(0);
         *nwindows_ret = 0;
         return get_windows_recursive(compositor, compositor->root, windows_ret, nwindows_ret);
     }
@@ -182,25 +207,41 @@ extern "C" {
         XFree(windows);
     }
 
-    MappingEvent poll_mapping_events(Compositor* compositor) {
-        MappingEvent ret;
+    Event poll_events(Compositor* compositor) {
+        Event ret;
         XEvent ev;
+
         XNextEvent(compositor->xdpy, &ev);
         switch (ev.type) {
             default:
-                ret.type = MAPPING_EVENT_NONE;
+                ret.type = EVENT_NONE;
+                break;
+
+            case CreateNotify:
+                ret.type = EVENT_CREATE;
+                ret.event = ev.xcreatewindow.parent;
+                ret.window = ev.xcreatewindow.window;
+                break;
+
+            case DestroyNotify:
+                ret.type = EVENT_DESTROY;
+                ret.event = ev.xdestroywindow.event;
+                ret.window = ev.xdestroywindow.window;
                 break;
 
             case MapNotify:
-                ret.type = MAPPING_EVENT_MAPPED;
+                ret.type = EVENT_MAP;
+                ret.event = ev.xmap.event;
                 ret.window = ev.xmap.window;
                 break;
 
             case UnmapNotify:
-                ret.type = MAPPING_EVENT_UNMAPPED;
+                ret.type = EVENT_UNMAP;
+                ret.event = ev.xunmap.event;
                 ret.window = ev.xunmap.window;
                 break;
         }
+
         return ret;
     }
 

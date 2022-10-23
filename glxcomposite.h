@@ -1,20 +1,25 @@
 #ifndef _GLXCOMPOSITE_H
 #define _GLXCOMPOSITE_H
 
+#include <stdbool.h>
+
 typedef struct Compositor Compositor;
 typedef unsigned long Window;
 typedef unsigned long GLXPixmap;
 
-typedef enum MappingEventType {
-    MAPPING_EVENT_NONE,
-    MAPPING_EVENT_MAPPED,
-    MAPPING_EVENT_UNMAPPED,
-} MappingEventType;
+typedef enum EventType {
+    EVENT_NONE,
+    EVENT_CREATE,
+    EVENT_DESTROY,
+    EVENT_MAP,
+    EVENT_UNMAP,
+} EventType;
 
-typedef struct MappingEvent {
-    MappingEventType type;
+typedef struct Event {
+    EventType type; /* If none, ignore. The values of the other properties are undefined */
+    Window event;   /* This property is event-specific. Usually the parent window of window */
     Window window;
-} MappingEvent;
+} Event;
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +29,10 @@ extern "C" {
     int init_compositor(Compositor* compositor);
     void destroy_compositor(Compositor* compositor);
     void free_compositor(Compositor* compositor);
+
+    void init_threads(void);
+    void lock_display(Compositor* compositor);
+    void unlock_display(Compositor* compositor);
 
     Window get_root_window(Compositor* compositor);
     Window get_composite_window(Compositor* compositor);
@@ -35,13 +44,15 @@ extern "C" {
     int get_window_x(Compositor* compositor, Window window);
     int get_window_y(Compositor* compositor, Window window);
 
+    bool is_window_visible(Compositor* compositor, Window window);
+
     void swap_buffers(Compositor* compositor);
 
     int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows);
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
     void free_windows(Window* windows);
 
-    MappingEvent poll_mapping_events(Compositor* compositor);
+    Event poll_events(Compositor* compositor);
 
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window);
     void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap);
