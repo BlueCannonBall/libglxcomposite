@@ -5,6 +5,7 @@
 
 typedef struct Compositor Compositor;
 typedef unsigned long Window;
+typedef unsigned char GLubyte;
 typedef unsigned long GLXPixmap;
 
 #ifdef __cplusplus
@@ -38,7 +39,7 @@ extern "C" {
     int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
     void free_windows(Window* windows);
 
-    void (*glx_get_proc_address(const unsigned char* name))();
+    void (*glx_get_proc_address(const GLubyte* name))();
 
     GLXPixmap create_glx_pixmap(Compositor* compositor, Window window);
     void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap);

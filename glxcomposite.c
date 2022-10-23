@@ -207,7 +207,7 @@ extern "C" {
         free(windows);
     }
 
-    void (*glx_get_proc_address(const unsigned char* name))() {
+    void (*glx_get_proc_address(const GLubyte* name))() {
         return glXGetProcAddress(name);
     }
 

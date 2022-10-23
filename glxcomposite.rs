@@ -9,6 +9,7 @@ pub struct Compositor {
     _unused: [u8; 0],
 }
 pub type Window = ::std::os::raw::c_ulong;
+pub type GLubyte = ::std::os::raw::c_uchar;
 pub type GLXPixmap = ::std::os::raw::c_ulong;
 extern "C" {
     pub fn create_compositor(display: *const ::std::os::raw::c_char) -> *mut Compositor;
@@ -78,8 +79,8 @@ extern "C" {
 }
 extern "C" {
     pub fn glx_get_proc_address(
-        name: *const ::std::os::raw::c_uchar,
-    ) -> ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_uchar, ...)>;
+        name: *const GLubyte,
+    ) -> ::std::option::Option<unsafe extern "C" fn(name: *const GLubyte, ...)>;
 }
 extern "C" {
     pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;
