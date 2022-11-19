@@ -9,6 +9,7 @@ pub struct Compositor {
     _unused: [u8; 0],
 }
 pub type Window = ::std::os::raw::c_ulong;
+pub type Atom = ::std::os::raw::c_ulong;
 pub type GLubyte = ::std::os::raw::c_uchar;
 pub type GLXPixmap = ::std::os::raw::c_ulong;
 extern "C" {
@@ -52,6 +53,15 @@ extern "C" {
 }
 extern "C" {
     pub fn get_window_y(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    pub fn get_window_type(compositor: *mut Compositor, window: Window) -> Atom;
+}
+extern "C" {
+    pub fn get_window_desktop(
+        compositor: *mut Compositor,
+        window: Window,
+    ) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
     pub fn is_window_visible(compositor: *mut Compositor, window: Window) -> bool;

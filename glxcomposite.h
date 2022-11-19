@@ -5,6 +5,7 @@
 
 typedef struct Compositor Compositor;
 typedef unsigned long Window;
+typedef unsigned long Atom;
 typedef unsigned char GLubyte;
 typedef unsigned long GLXPixmap;
 
@@ -30,6 +31,9 @@ extern "C" {
 
     int get_window_x(Compositor* compositor, Window window);
     int get_window_y(Compositor* compositor, Window window);
+
+    Atom get_window_type(Compositor* compositor, Window window);
+    unsigned long get_window_desktop(Compositor* compositor, Window window); /* Returns the window's workspace */
 
     bool is_window_visible(Compositor* compositor, Window window);
 

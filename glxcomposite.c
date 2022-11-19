@@ -1,5 +1,6 @@
 #include "glxcomposite.h"
 #include <GL/glx.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xfixes.h>
@@ -8,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define MAX_PROPERTY_VALUE_LEN 4096
 
 typedef void (*glXBindTexImageEXTProc)(Display*, GLXDrawable, int, const int*);
 typedef void (*glXReleaseTexImageEXTProc)(Display*, GLXDrawable, int);
@@ -148,6 +151,34 @@ extern "C" {
         XWindowAttributes attribs;
         XGetWindowAttributes(compositor->xdpy, window, &attribs);
         return attribs.y;
+    }
+
+    Atom get_window_type(Compositor* compositor, Window window) {
+        Atom type;
+        int format;
+        unsigned long size;
+        unsigned long bytes_after;
+        unsigned char* ret_bytes;
+
+        XGetWindowProperty(compositor->xdpy, window, XInternAtom(compositor->xdpy, "_NET_WM_WINDOW_TYPE", False), 0, MAX_PROPERTY_VALUE_LEN / 4, False, XA_ATOM, &type, &format, &size, &bytes_after, &ret_bytes);
+
+        Atom ret = *((Atom*) ret_bytes);
+        XFree(ret_bytes);
+        return ret;
+    }
+
+    unsigned long get_window_desktop(Compositor* compositor, Window window) {
+        Atom type;
+        int format;
+        unsigned long size;
+        unsigned long bytes_after;
+        unsigned char* ret_bytes;
+
+        XGetWindowProperty(compositor->xdpy, window, XInternAtom(compositor->xdpy, "_NET_WM_DESKTOP", False), 0, MAX_PROPERTY_VALUE_LEN / 4, False, XA_CARDINAL, &type, &format, &size, &bytes_after, &ret_bytes);
+
+        unsigned long ret = *((unsigned long*) ret_bytes);
+        XFree(ret_bytes);
+        return ret;
     }
 
     bool is_window_visible(Compositor* compositor, Window window) {
