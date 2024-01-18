@@ -82,6 +82,7 @@ extern "C" {
 
         if (!glXCreateContextAttribsARB) {
             fprintf(stderr, "libglxcomposite: glXCreateContextAttribsARB() not found\n");
+            return 1;
         }
 
         const static int context_attribs[] = {
