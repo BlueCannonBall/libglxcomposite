@@ -33,7 +33,7 @@ extern "C" {
     Compositor* create_compositor(const char* display) {
         Compositor* compositor = malloc(sizeof(Compositor));
 
-        if ((compositor->xdpy = XOpenDisplay(display)) == NULL) {
+        if (!(compositor->xdpy = XOpenDisplay(display))) {
             fprintf(stderr, "libglxcomposite: Failed to open display\n");
             return NULL;
         }
@@ -211,7 +211,7 @@ extern "C" {
             fprintf(stderr, "libglxcomposite: XQueryTree() failed\n");
             return 1;
         }
-        if (children == NULL || nchildren == 0) {
+        if (!children || nchildren == 0) {
             return 0;
         }
 
