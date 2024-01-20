@@ -79,13 +79,13 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
 
     typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
-    const static int visual_attribs[] = {
+    const static int visual_attrs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, None};
 
     int fbc_count;
     GLXFBConfig* fbc = glXChooseFBConfig(compositor->display,
         compositor->screen,
-        visual_attribs,
+        visual_attrs,
         &fbc_count);
     if (!fbc) {
         std::cerr << "libglxcomposite: glXChooseFBConfig() failed" << std::endl;
@@ -102,14 +102,14 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
         return 1;
     }
 
-    const static int context_attribs[] = {
+    const static int context_attrs[] = {
         GLX_CONTEXT_MAJOR_VERSION_ARB,
         3,
         GLX_CONTEXT_MINOR_VERSION_ARB,
         3,
         None,
     };
-    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fbc[0], NULL, true, context_attribs);
+    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fbc[0], NULL, true, context_attrs);
     glXMakeCurrent(compositor->display, compositor->overlay, compositor->ctx);
     compositor->fbcs = glXGetFBConfigs(compositor->display, compositor->screen, &compositor->fbc_count);
     XFree(fbc);
@@ -172,15 +172,15 @@ GLXCWindow glxc_get_composite_window(GLXCCompositor* compositor) {
     return compositor->overlay;
 }
 
-void glxc_get_window_attribs(GLXCCompositor* compositor, GLXCWindow window, GLXCWindowAttributes* ret) {
+void glxc_get_window_attrs(GLXCCompositor* compositor, GLXCWindow window, GLXCWindowAttributes* ret) {
     GLXCWindow child;
     XTranslateCoordinates(compositor->display, window, compositor->root, 0, 0, &ret->x, &ret->y, &child);
 
-    XWindowAttributes attribs;
-    XGetWindowAttributes(compositor->display, window, &attribs);
-    ret->width = attribs.width;
-    ret->width = attribs.height;
-    ret->visible = attribs.map_state == IsViewable;
+    XWindowAttributes attrs;
+    XGetWindowAttributes(compositor->display, window, &attrs);
+    ret->width = attrs.width;
+    ret->width = attrs.height;
+    ret->visible = attrs.map_state == IsViewable;
 }
 
 GLXCAtom glxc_get_atom(GLXCCompositor* compositor, const char* name) {
@@ -306,8 +306,8 @@ size_t glxc_get_windows(GLXCCompositor* compositor, const GLXCWindowInfo** ret) 
 
 void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window_info) {
     if (!window_info->pixmaps_valid) {
-        XWindowAttributes attribs;
-        XGetWindowAttributes(compositor->display, window_info->window, &attribs);
+        XWindowAttributes attrs;
+        XGetWindowAttributes(compositor->display, window_info->window, &attrs);
 
         int format;
         GLXFBConfig fbc;
@@ -320,7 +320,7 @@ void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window
             glXGetFBConfigAttrib(compositor->display, fbc, GLX_BIND_TO_TEXTURE_RGBA_EXT, &has_alpha);
 
             XVisualInfo* visual = glXGetVisualFromFBConfig(compositor->display, fbc);
-            if (attribs.depth != visual->depth) {
+            if (attrs.depth != visual->depth) {
                 XFree(visual);
                 continue;
             }

@@ -15,7 +15,6 @@ typedef struct GLXCWindowInfo {
     bool pixmaps_valid;
     GLXCPixmap x_pixmap;
     GLXCPixmap gl_pixmap;
-    int stack_index;
 } GLXCWindowInfo;
 typedef struct GLXCWindowAttributes {
     int x;
@@ -42,7 +41,7 @@ extern "C" {
     GLXCWindow glxc_get_root_window(GLXCCompositor* compositor);
     GLXCWindow glxc_get_composite_window(GLXCCompositor* compositor);
 
-    void glxc_get_window_attribs(GLXCCompositor* compositor, GLXCWindow window, GLXCWindowAttributes* ret);
+    void glxc_get_window_attrs(GLXCCompositor* compositor, GLXCWindow window, GLXCWindowAttributes* ret);
     GLXCAtom glxc_get_atom(GLXCCompositor* compositor, const char* name);
     GLXCAtom glxc_get_window_type(GLXCCompositor* compositor, GLXCWindow window);
     unsigned long glxc_get_window_desktop(GLXCCompositor* compositor, GLXCWindow window); // Returns the window's workspace
