@@ -3,104 +3,295 @@
 pub const true_: u32 = 1;
 pub const false_: u32 = 0;
 pub const __bool_true_false_are_defined: u32 = 1;
+pub type size_t = ::std::os::raw::c_ulong;
+pub type wchar_t = ::std::os::raw::c_int;
+#[repr(C)]
+#[repr(align(16))]
+#[derive(Debug, Copy, Clone)]
+pub struct max_align_t {
+    pub __clang_max_align_nonce1: ::std::os::raw::c_longlong,
+    pub __bindgen_padding_0: u64,
+    pub __clang_max_align_nonce2: u128,
+}
+#[test]
+fn bindgen_test_layout_max_align_t() {
+    assert_eq!(
+        ::std::mem::size_of::<max_align_t>(),
+        32usize,
+        concat!("Size of: ", stringify!(max_align_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<max_align_t>(),
+        16usize,
+        concat!("Alignment of ", stringify!(max_align_t))
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<max_align_t>())).__clang_max_align_nonce1 as *const _ as usize
+        },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce1)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<max_align_t>())).__clang_max_align_nonce2 as *const _ as usize
+        },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(max_align_t),
+            "::",
+            stringify!(__clang_max_align_nonce2)
+        )
+    );
+}
+pub type GLXCID = ::std::os::raw::c_ulong;
+pub type GLXCWindow = GLXCID;
+pub type GLXCAtom = GLXCID;
+pub type GLXCPixmap = GLXCID;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct Compositor {
+pub struct GLXCWindowInfo {
+    pub window: GLXCWindow,
+    pub parent: GLXCWindow,
+    pub pixmaps_valid: bool,
+    pub x_pixmap: GLXCPixmap,
+    pub gl_pixmap: GLXCPixmap,
+    pub stack_index: ::std::os::raw::c_int,
+}
+#[test]
+fn bindgen_test_layout_GLXCWindowInfo() {
+    assert_eq!(
+        ::std::mem::size_of::<GLXCWindowInfo>(),
+        48usize,
+        concat!("Size of: ", stringify!(GLXCWindowInfo))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<GLXCWindowInfo>(),
+        8usize,
+        concat!("Alignment of ", stringify!(GLXCWindowInfo))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).window as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(window)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).parent as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(parent)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).pixmaps_valid as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(pixmaps_valid)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).x_pixmap as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(x_pixmap)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).gl_pixmap as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(gl_pixmap)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowInfo>())).stack_index as *const _ as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowInfo),
+            "::",
+            stringify!(stack_index)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct GLXCWindowAttributes {
+    pub x: ::std::os::raw::c_int,
+    pub y: ::std::os::raw::c_int,
+    pub width: ::std::os::raw::c_int,
+    pub height: ::std::os::raw::c_int,
+    pub visible: bool,
+}
+#[test]
+fn bindgen_test_layout_GLXCWindowAttributes() {
+    assert_eq!(
+        ::std::mem::size_of::<GLXCWindowAttributes>(),
+        20usize,
+        concat!("Size of: ", stringify!(GLXCWindowAttributes))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<GLXCWindowAttributes>(),
+        4usize,
+        concat!("Alignment of ", stringify!(GLXCWindowAttributes))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowAttributes>())).x as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowAttributes),
+            "::",
+            stringify!(x)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowAttributes>())).y as *const _ as usize },
+        4usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowAttributes),
+            "::",
+            stringify!(y)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowAttributes>())).width as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowAttributes),
+            "::",
+            stringify!(width)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowAttributes>())).height as *const _ as usize },
+        12usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowAttributes),
+            "::",
+            stringify!(height)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<GLXCWindowAttributes>())).visible as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(GLXCWindowAttributes),
+            "::",
+            stringify!(visible)
+        )
+    );
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct GLXCCompositor {
     _unused: [u8; 0],
 }
-pub type Window = ::std::os::raw::c_ulong;
-pub type Atom = ::std::os::raw::c_ulong;
-pub type GLubyte = ::std::os::raw::c_uchar;
-pub type GLXPixmap = ::std::os::raw::c_ulong;
 extern "C" {
-    pub fn create_compositor(display: *const ::std::os::raw::c_char) -> *mut Compositor;
+    pub fn glxc_create_compositor() -> *mut GLXCCompositor;
 }
 extern "C" {
-    pub fn init_compositor(compositor: *mut Compositor) -> ::std::os::raw::c_int;
+    pub fn glxc_init_compositor(
+        compositor: *mut GLXCCompositor,
+        display: *const ::std::os::raw::c_char,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    pub fn destroy_compositor(compositor: *mut Compositor);
+    pub fn glxc_destroy_compositor(compositor: *mut GLXCCompositor);
 }
 extern "C" {
-    pub fn free_compositor(compositor: *mut Compositor);
+    pub fn glxc_free_compositor(compositor: *mut GLXCCompositor);
 }
 extern "C" {
-    pub fn init_threads();
+    pub fn glxc_init_threads();
 }
 extern "C" {
-    pub fn lock_display(compositor: *mut Compositor);
+    pub fn glxc_lock_display(compositor: *mut GLXCCompositor);
 }
 extern "C" {
-    pub fn unlock_display(compositor: *mut Compositor);
+    pub fn glxc_unlock_display(compositor: *mut GLXCCompositor);
 }
 extern "C" {
-    pub fn get_root_window(compositor: *mut Compositor) -> Window;
+    pub fn glxc_get_root_window(compositor: *mut GLXCCompositor) -> GLXCWindow;
 }
 extern "C" {
-    pub fn get_composite_window(compositor: *mut Compositor) -> Window;
+    pub fn glxc_get_composite_window(compositor: *mut GLXCCompositor) -> GLXCWindow;
 }
 extern "C" {
-    pub fn get_window_width(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+    pub fn glxc_get_window_attribs(
+        compositor: *mut GLXCCompositor,
+        window: GLXCWindow,
+        ret: *mut GLXCWindowAttributes,
+    );
 }
 extern "C" {
-    pub fn get_window_height(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+    pub fn glxc_get_atom(
+        compositor: *mut GLXCCompositor,
+        name: *const ::std::os::raw::c_char,
+    ) -> GLXCAtom;
 }
 extern "C" {
-    pub fn get_window_depth(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
+    pub fn glxc_get_window_type(compositor: *mut GLXCCompositor, window: GLXCWindow) -> GLXCAtom;
 }
 extern "C" {
-    pub fn get_window_x(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn get_window_y(compositor: *mut Compositor, window: Window) -> ::std::os::raw::c_int;
-}
-extern "C" {
-    pub fn get_window_type(compositor: *mut Compositor, window: Window) -> Atom;
-}
-extern "C" {
-    pub fn get_window_desktop(
-        compositor: *mut Compositor,
-        window: Window,
+    pub fn glxc_get_window_desktop(
+        compositor: *mut GLXCCompositor,
+        window: GLXCWindow,
     ) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
-    pub fn is_window_visible(compositor: *mut Compositor, window: Window) -> bool;
+    pub fn glxc_swap_buffers(compositor: *mut GLXCCompositor);
 }
 extern "C" {
-    pub fn swap_buffers(compositor: *mut Compositor);
+    pub fn glxc_get_proc_address(
+        name: *const ::std::os::raw::c_uchar,
+    ) -> ::std::option::Option<unsafe extern "C" fn(name: *const ::std::os::raw::c_uchar, ...)>;
 }
 extern "C" {
-    pub fn get_windows_recursive(
-        compositor: *mut Compositor,
-        parent: Window,
-        windows: *mut *mut Window,
-        nwindows: *mut ::std::os::raw::c_uint,
-    ) -> ::std::os::raw::c_int;
+    pub fn glxc_handle_events(compositor: *mut GLXCCompositor) -> size_t;
 }
 extern "C" {
-    pub fn get_all_windows(
-        compositor: *mut Compositor,
-        windows_ret: *mut *mut Window,
-        nwindows_ret: *mut ::std::os::raw::c_uint,
-    ) -> ::std::os::raw::c_int;
+    pub fn glxc_get_windows(
+        compositor: *mut GLXCCompositor,
+        ret: *mut *const GLXCWindowInfo,
+    ) -> size_t;
 }
 extern "C" {
-    pub fn free_windows(windows: *mut Window);
+    pub fn glxc_bind_window_texture(
+        compositor: *mut GLXCCompositor,
+        window_info: *mut GLXCWindowInfo,
+    );
 }
 extern "C" {
-    pub fn glx_get_proc_address(
-        name: *const GLubyte,
-    ) -> ::std::option::Option<unsafe extern "C" fn(name: *const GLubyte, ...)>;
-}
-extern "C" {
-    pub fn create_glx_pixmap(compositor: *mut Compositor, window: Window) -> GLXPixmap;
-}
-extern "C" {
-    pub fn destroy_glx_pixmap(compositor: *mut Compositor, glx_pixmap: GLXPixmap);
-}
-extern "C" {
-    pub fn glx_bind_window_texture(compositor: *mut Compositor, glx_pixmap: GLXPixmap);
-}
-extern "C" {
-    pub fn glx_unbind_window_texture(compositor: *mut Compositor, glx_pixmap: GLXPixmap);
+    pub fn glxc_unbind_window_texture(
+        compositor: *mut GLXCCompositor,
+        window_info: *const GLXCWindowInfo,
+    );
 }

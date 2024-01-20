@@ -1,54 +1,61 @@
-#ifndef _GLXCOMPOSITE_H
-#define _GLXCOMPOSITE_H
+#ifndef GLXCOMPOSITE_H
+#define GLXCOMPOSITE_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
-typedef struct Compositor Compositor;
-typedef unsigned long Window;
-typedef unsigned long Atom;
-typedef unsigned char GLubyte;
-typedef unsigned long GLXPixmap;
+typedef unsigned long GLXCID;
+typedef GLXCID GLXCWindow;
+typedef GLXCID GLXCAtom;
+typedef GLXCID GLXCPixmap;
+
+typedef struct GLXCWindowInfo {
+    GLXCWindow window;
+    GLXCWindow parent;
+    bool pixmaps_valid;
+    GLXCPixmap x_pixmap;
+    GLXCPixmap gl_pixmap;
+    int stack_index;
+} GLXCWindowInfo;
+typedef struct GLXCWindowAttributes {
+    int x;
+    int y;
+    int width;
+    int height;
+    bool visible;
+} GLXCWindowAttributes;
+typedef struct GLXCCompositor GLXCCompositor;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    Compositor* create_compositor(const char* display);
-    int init_compositor(Compositor* compositor);
-    void destroy_compositor(Compositor* compositor);
-    void free_compositor(Compositor* compositor);
+    GLXCCompositor* glxc_create_compositor(void);
+    int glxc_init_compositor(GLXCCompositor* compositor, const char* display);
+    void glxc_destroy_compositor(GLXCCompositor* compositor);
+    void glxc_free_compositor(GLXCCompositor* compositor);
 
-    void init_threads(void);
-    void lock_display(Compositor* compositor);
-    void unlock_display(Compositor* compositor);
+    void glxc_init_threads(void);
+    void glxc_lock_display(GLXCCompositor* compositor);
+    void glxc_unlock_display(GLXCCompositor* compositor);
 
-    Window get_root_window(Compositor* compositor);
-    Window get_composite_window(Compositor* compositor);
+    GLXCWindow glxc_get_root_window(GLXCCompositor* compositor);
+    GLXCWindow glxc_get_composite_window(GLXCCompositor* compositor);
 
-    int get_window_width(Compositor* compositor, Window window);
-    int get_window_height(Compositor* compositor, Window window);
-    int get_window_depth(Compositor* compositor, Window window);
+    void glxc_get_window_attribs(GLXCCompositor* compositor, GLXCWindow window, GLXCWindowAttributes* ret);
+    GLXCAtom glxc_get_atom(GLXCCompositor* compositor, const char* name);
+    GLXCAtom glxc_get_window_type(GLXCCompositor* compositor, GLXCWindow window);
+    unsigned long glxc_get_window_desktop(GLXCCompositor* compositor, GLXCWindow window); // Returns the window's workspace
 
-    int get_window_x(Compositor* compositor, Window window);
-    int get_window_y(Compositor* compositor, Window window);
+    void glxc_swap_buffers(GLXCCompositor* compositor);
 
-    Atom get_window_type(Compositor* compositor, Window window);
-    unsigned long get_window_desktop(Compositor* compositor, Window window); /* Returns the window's workspace */
+    void (*glxc_get_proc_address(const unsigned char* name))();
 
-    bool is_window_visible(Compositor* compositor, Window window);
+    size_t glxc_handle_events(GLXCCompositor* compositor); // Returns the number of events handled
+    size_t glxc_get_windows(GLXCCompositor* compositor, const GLXCWindowInfo** ret); // Returns the number of windows
 
-    void swap_buffers(Compositor* compositor);
-
-    int get_windows_recursive(Compositor* compositor, Window parent, Window** windows, unsigned int* nwindows);
-    int get_all_windows(Compositor* compositor, Window** windows_ret, unsigned int* nwindows_ret);
-    void free_windows(Window* windows);
-
-    void (*glx_get_proc_address(const GLubyte* name))();
-
-    GLXPixmap create_glx_pixmap(Compositor* compositor, Window window);
-    void destroy_glx_pixmap(Compositor* compositor, GLXPixmap glx_pixmap);
-    void glx_bind_window_texture(Compositor* compositor, GLXPixmap glx_pixmap);
-    void glx_unbind_window_texture(Compositor* compositor, GLXPixmap glx_pixmap);
+    void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window_info);
+    void glxc_unbind_window_texture(GLXCCompositor* compositor, const GLXCWindowInfo* window_info);
 
 #ifdef __cplusplus
 }

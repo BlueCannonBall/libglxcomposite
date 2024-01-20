@@ -1,5 +1,5 @@
-CC = gcc
-CFLAGS = -Wall -O2 -flto -ansi -shared -fPIC
+CXX = g++
+CXXFLAGS = -Wall -O3 -std=c++14 -shared -fPIC
 TARGET = libglxcomposite.so
 PREFIX = /usr/local
 
@@ -7,8 +7,8 @@ PREFIX = /usr/local
 
 all: $(TARGET) glxcomposite.rs
 
-$(TARGET): glxcomposite.c glxcomposite.h
-	$(CC) $< $(CFLAGS) -o $@
+$(TARGET): glxcomposite.cpp glxcomposite.h
+	$(CXX) $< $(CXXFLAGS) -o $@
 
 glxcomposite.rs: glxcomposite.h
 	bindgen $< -o $@
