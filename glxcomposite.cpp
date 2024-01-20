@@ -25,8 +25,8 @@ struct GLXCCompositor {
     GLXContext ctx;
     glXBindTexImageEXTProc glXBindTexImageEXT;
     glXReleaseTexImageEXTProc glXReleaseTexImageEXT;
-    GLXFBConfig* fbcs;
-    int fbc_count;
+    GLXFBConfig* fb_configs;
+    int fb_config_count;
 
     std::vector<GLXCWindowInfo> windows;
 };
@@ -80,14 +80,13 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
     typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
     const static int visual_attrs[] = {
-        GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_X_RENDERABLE, true, None};
+        GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_X_RENDERABLE, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, None};
 
-    int fbc_count;
-    GLXFBConfig* fbc = glXChooseFBConfig(compositor->display,
+    compositor->fb_configs = glXChooseFBConfig(compositor->display,
         compositor->screen,
         visual_attrs,
-        &fbc_count);
-    if (!fbc) {
+        &compositor->fb_config_count);
+    if (!compositor->fb_configs) {
         std::cerr << "libglxcomposite: glXChooseFBConfig() failed" << std::endl;
         return 1;
     }
@@ -98,7 +97,6 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
 
     if (!glXCreateContextAttribsARB) {
         std::cerr << "libglxcomposite: glXCreateContextAttribsARB() not found" << std::endl;
-        XFree(fbc);
         return 1;
     }
 
@@ -109,10 +107,8 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
         3,
         None,
     };
-    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fbc[0], nullptr, true, context_attrs);
+    compositor->ctx = glXCreateContextAttribsARB(compositor->display, compositor->fb_configs[0], nullptr, true, context_attrs);
     glXMakeCurrent(compositor->display, compositor->overlay, compositor->ctx);
-    compositor->fbcs = glXGetFBConfigs(compositor->display, compositor->screen, &compositor->fbc_count);
-    XFree(fbc);
 
     {
         Window root;
@@ -142,7 +138,7 @@ void glxc_destroy_compositor(GLXCCompositor* compositor) {
             glXDestroyPixmap(compositor->display, window_info.gl_pixmap);
         }
     }
-
+    XFree(compositor->fb_configs);
     glXDestroyContext(compositor->display, compositor->ctx);
     XCompositeUnredirectSubwindows(compositor->display, compositor->root, CompositeRedirectAutomatic);
     XCloseDisplay(compositor->display);
@@ -310,16 +306,16 @@ void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window
         XGetWindowAttributes(compositor->display, window_info->window, &attrs);
 
         int format;
-        GLXFBConfig fbc;
+        GLXFBConfig fb_config;
 
         bool found = false;
-        for (int i = 0; i < compositor->fbc_count; ++i) {
-            fbc = compositor->fbcs[i];
+        for (int i = 0; i < compositor->fb_config_count; ++i) {
+            fb_config = compositor->fb_configs[i];
 
             int has_alpha;
-            glXGetFBConfigAttrib(compositor->display, fbc, GLX_BIND_TO_TEXTURE_RGBA_EXT, &has_alpha);
+            glXGetFBConfigAttrib(compositor->display, fb_config, GLX_BIND_TO_TEXTURE_RGBA_EXT, &has_alpha);
 
-            XVisualInfo* visual = glXGetVisualFromFBConfig(compositor->display, fbc);
+            XVisualInfo* visual = glXGetVisualFromFBConfig(compositor->display, fb_config);
             if (attrs.depth != visual->depth) {
                 XFree(visual);
                 continue;
@@ -342,7 +338,7 @@ void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window
             None,
         };
         window_info->x_pixmap = XCompositeNameWindowPixmap(compositor->display, window_info->window);
-        window_info->gl_pixmap = glXCreatePixmap(compositor->display, fbc, window_info->x_pixmap, pixmap_attributes);
+        window_info->gl_pixmap = glXCreatePixmap(compositor->display, fb_config, window_info->x_pixmap, pixmap_attributes);
         window_info->pixmaps_valid = true;
     }
 
