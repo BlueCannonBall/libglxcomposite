@@ -51,7 +51,7 @@ extern "C" {
     void (*glxc_get_proc_address(const unsigned char* name))();
 
     size_t glxc_handle_events(GLXCCompositor* compositor); // Returns the number of events handled
-    size_t glxc_get_windows(GLXCCompositor* compositor, const GLXCWindowInfo** ret); // Returns the number of windows
+    size_t glxc_get_windows(GLXCCompositor* compositor, GLXCWindowInfo** ret); // Returns the number of windows
 
     void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window_info);
     void glxc_unbind_window_texture(GLXCCompositor* compositor, const GLXCWindowInfo* window_info);

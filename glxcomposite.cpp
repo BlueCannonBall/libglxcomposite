@@ -299,7 +299,7 @@ size_t glxc_handle_events(GLXCCompositor* compositor) {
     return ret;
 }
 
-size_t glxc_get_windows(GLXCCompositor* compositor, const GLXCWindowInfo** ret) {
+size_t glxc_get_windows(GLXCCompositor* compositor, GLXCWindowInfo** ret) {
     *ret = compositor->windows.data();
     return compositor->windows.size();
 }
