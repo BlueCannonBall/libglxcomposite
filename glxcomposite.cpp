@@ -60,7 +60,7 @@ GLXCCompositor* glxc_create_compositor() {
 }
 
 int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
-    compositor->display = NULL;
+    compositor->display = nullptr;
     if (!(compositor->display = XOpenDisplay(display))) {
         std::cerr << "libglxcomposite: Failed to open display" << std::endl;
         return 1;
@@ -72,7 +72,7 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
 
     XCompositeRedirectSubwindows(compositor->display, compositor->root, CompositeRedirectAutomatic);
 
-    XserverRegion region = XFixesCreateRegion(compositor->display, NULL, 0);
+    XserverRegion region = XFixesCreateRegion(compositor->display, nullptr, 0);
     XFixesSetWindowShapeRegion(compositor->display, compositor->overlay, ShapeBounding, 0, 0, 0);
     XFixesSetWindowShapeRegion(compositor->display, compositor->overlay, ShapeInput, 0, 0, region);
     XFixesDestroyRegion(compositor->display, region);
@@ -80,7 +80,7 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
     typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
     const static int visual_attrs[] = {
-        GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, None};
+        GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, GLX_X_RENDERABLE, true, None};
 
     int fbc_count;
     GLXFBConfig* fbc = glXChooseFBConfig(compositor->display,
@@ -109,7 +109,7 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
         3,
         None,
     };
-    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fbc[0], NULL, true, context_attrs);
+    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fbc[0], nullptr, true, context_attrs);
     glXMakeCurrent(compositor->display, compositor->overlay, compositor->ctx);
     compositor->fbcs = glXGetFBConfigs(compositor->display, compositor->screen, &compositor->fbc_count);
     XFree(fbc);
@@ -346,7 +346,7 @@ void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window
         window_info->pixmaps_valid = true;
     }
 
-    compositor->glXBindTexImageEXT(compositor->display, window_info->gl_pixmap, GLX_FRONT_LEFT_EXT, NULL);
+    compositor->glXBindTexImageEXT(compositor->display, window_info->gl_pixmap, GLX_FRONT_LEFT_EXT, nullptr);
 }
 
 void glxc_unbind_window_texture(GLXCCompositor* compositor, const GLXCWindowInfo* window_info) {
