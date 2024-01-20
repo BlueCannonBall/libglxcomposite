@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <vector>
 
-#define MAX_PROPERTY_VALUE_LEN 4096
+#define MAX_PROPERTY_VALUE_SIZE 4096
 
 typedef void (*glXBindTexImageEXTProc)(Display*, GLXDrawable, int, const int*);
 typedef void (*glXReleaseTexImageEXTProc)(Display*, GLXDrawable, int);
@@ -193,7 +193,7 @@ GLXCAtom glxc_get_window_type(GLXCCompositor* compositor, GLXCWindow window) {
     unsigned long size;
     unsigned long bytes_after;
     unsigned char* ret_bytes;
-    XGetWindowProperty(compositor->display, window, glxc_get_atom(compositor, "_NET_WM_WINDOW_TYPE"), 0, MAX_PROPERTY_VALUE_LEN / 4, False, XA_ATOM, &type, &format, &size, &bytes_after, &ret_bytes);
+    XGetWindowProperty(compositor->display, window, glxc_get_atom(compositor, "_NET_WM_WINDOW_TYPE"), 0, MAX_PROPERTY_VALUE_SIZE / 4, False, XA_ATOM, &type, &format, &size, &bytes_after, &ret_bytes);
 
     GLXCAtom ret = *((GLXCAtom*) ret_bytes);
     XFree(ret_bytes);
@@ -206,7 +206,7 @@ unsigned long glxc_get_window_desktop(GLXCCompositor* compositor, GLXCWindow win
     unsigned long size;
     unsigned long bytes_after;
     unsigned char* ret_bytes;
-    XGetWindowProperty(compositor->display, window, glxc_get_atom(compositor, "_NET_WM_DESKTOP"), 0, MAX_PROPERTY_VALUE_LEN / 4, False, XA_CARDINAL, &type, &format, &size, &bytes_after, &ret_bytes);
+    XGetWindowProperty(compositor->display, window, glxc_get_atom(compositor, "_NET_WM_DESKTOP"), 0, MAX_PROPERTY_VALUE_SIZE / 4, False, XA_CARDINAL, &type, &format, &size, &bytes_after, &ret_bytes);
 
     unsigned long ret = *((unsigned long*) ret_bytes);
     XFree(ret_bytes);
