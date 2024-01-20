@@ -79,7 +79,7 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
 
     typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
-    const static int visual_attrs[] = {
+    static constexpr int visual_attrs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_X_RENDERABLE, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, None};
 
     compositor->fb_configs = glXChooseFBConfig(compositor->display,
@@ -100,7 +100,7 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
         return 1;
     }
 
-    const static int context_attrs[] = {
+    static constexpr int context_attrs[] = {
         GLX_CONTEXT_MAJOR_VERSION_ARB,
         3,
         GLX_CONTEXT_MINOR_VERSION_ARB,
