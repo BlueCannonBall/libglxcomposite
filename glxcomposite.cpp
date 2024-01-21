@@ -1,5 +1,7 @@
 #include "glxcomposite.h"
 #include <GL/glx.h>
+#include <GL/glxext.h>
+#include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xcomposite.h>
@@ -13,6 +15,7 @@
 
 #define MAX_PROPERTY_VALUE_SIZE 4096
 
+typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 typedef void (*glXBindTexImageEXTProc)(Display*, GLXDrawable, int, const int*);
 typedef void (*glXReleaseTexImageEXTProc)(Display*, GLXDrawable, int);
 
@@ -21,6 +24,7 @@ struct GLXCCompositor {
     int screen;
     GLXCWindow root;
     GLXCWindow overlay;
+    Visual* visual;
 
     GLXContext ctx;
     glXBindTexImageEXTProc glXBindTexImageEXT;
@@ -50,13 +54,12 @@ bool operator!=(const GLXCWindowInfo& window_info, GLXCWindow window) {
 int x_error_handler(Display* display, XErrorEvent* event) {
     char error_string[128];
     XGetErrorText(display, event->error_code, error_string, sizeof error_string);
-    std::cerr << "libglxcomposite: An X error has occured: " << error_string << " (error: " << event->error_code << ", major: " << event->request_code << ", minor: " << event->minor_code << ')' << std::endl;
+    std::cerr << "libglxcomposite: An X error has occured: " << error_string << " (error: " << +event->error_code << ", major: " << +event->request_code << ", minor: " << +event->minor_code << ')' << std::endl;
     return 0; // This value is ignored
 }
 
 GLXCCompositor* glxc_create_compositor() {
-    GLXCCompositor* compositor = new GLXCCompositor;
-    return compositor;
+    return new GLXCCompositor;
 }
 
 int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
@@ -65,50 +68,47 @@ int glxc_init_compositor(GLXCCompositor* compositor, const char* display) {
         std::cerr << "libglxcomposite: Failed to open display" << std::endl;
         return 1;
     }
-    compositor->screen = DefaultScreen(compositor->display);
-    compositor->root = ScreenOfDisplay(compositor->display, compositor->screen)->root;
-    compositor->overlay = XCompositeGetOverlayWindow(compositor->display, compositor->root);
     XSetErrorHandler(&x_error_handler);
+    compositor->screen = DefaultScreen(compositor->display);
+    compositor->root = RootWindow(compositor->display, compositor->screen);
+    compositor->overlay = XCompositeGetOverlayWindow(compositor->display, compositor->root);
+    compositor->visual = DefaultVisual(compositor->display, compositor->screen);
 
-    XCompositeRedirectSubwindows(compositor->display, compositor->root, CompositeRedirectAutomatic);
+    XCompositeRedirectSubwindows(compositor->display, compositor->root, CompositeRedirectManual);
 
     XserverRegion region = XFixesCreateRegion(compositor->display, nullptr, 0);
     XFixesSetWindowShapeRegion(compositor->display, compositor->overlay, ShapeBounding, 0, 0, 0);
     XFixesSetWindowShapeRegion(compositor->display, compositor->overlay, ShapeInput, 0, 0, region);
     XFixesDestroyRegion(compositor->display, region);
 
-    typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-
-    static constexpr int visual_attrs[] = {
-        GLX_RENDER_TYPE, GLX_RGBA_BIT, GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT, GLX_DOUBLEBUFFER, true, GLX_X_RENDERABLE, true, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1, GLX_BLUE_SIZE, 1, None};
-
-    compositor->fb_configs = glXChooseFBConfig(compositor->display,
-        compositor->screen,
-        visual_attrs,
-        &compositor->fb_config_count);
-    if (!compositor->fb_configs) {
-        std::cerr << "libglxcomposite: glXChooseFBConfig() failed" << std::endl;
-        return 1;
+    GLXFBConfig fb_config;
+    compositor->fb_configs = glXGetFBConfigs(compositor->display, compositor->screen, &compositor->fb_config_count);
+    {
+        int target_visual_id = XVisualIDFromVisual(compositor->visual);
+        for (int i = 0; i < compositor->fb_config_count; ++i) {
+            int visual_id;
+            if (glXGetFBConfigAttrib(compositor->display, compositor->fb_configs[i], GLX_VISUAL_ID, &visual_id) == Success && visual_id == target_visual_id) {
+                fb_config = compositor->fb_configs[i];
+                break;
+            }
+        }
     }
 
     glXCreateContextAttribsARBProc glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddress((const unsigned char*) "glXCreateContextAttribsARB");
-    compositor->glXBindTexImageEXT = (glXBindTexImageEXTProc) glXGetProcAddress((const unsigned char*) "glXBindTexImageEXT");
-    compositor->glXReleaseTexImageEXT = (glXReleaseTexImageEXTProc) glXGetProcAddress((const unsigned char*) "glXReleaseTexImageEXT");
-
     if (!glXCreateContextAttribsARB) {
         std::cerr << "libglxcomposite: glXCreateContextAttribsARB() not found" << std::endl;
         return 1;
     }
-
     static constexpr int context_attrs[] = {
-        GLX_CONTEXT_MAJOR_VERSION_ARB,
-        3,
-        GLX_CONTEXT_MINOR_VERSION_ARB,
-        3,
+        GLX_CONTEXT_FLAGS_ARB,
+        GLX_CONTEXT_DEBUG_BIT_ARB,
         None,
     };
-    compositor->ctx = glXCreateContextAttribsARB(compositor->display, compositor->fb_configs[0], nullptr, true, context_attrs);
+    compositor->ctx = glXCreateContextAttribsARB(compositor->display, fb_config, nullptr, True, context_attrs);
     glXMakeCurrent(compositor->display, compositor->overlay, compositor->ctx);
+
+    compositor->glXBindTexImageEXT = (glXBindTexImageEXTProc) glXGetProcAddress((const unsigned char*) "glXBindTexImageEXT");
+    compositor->glXReleaseTexImageEXT = (glXReleaseTexImageEXTProc) glXGetProcAddress((const unsigned char*) "glXReleaseTexImageEXT");
 
     {
         Window root;
@@ -138,9 +138,8 @@ void glxc_destroy_compositor(GLXCCompositor* compositor) {
             glXDestroyPixmap(compositor->display, window_info.gl_pixmap);
         }
     }
-    XFree(compositor->fb_configs);
     glXDestroyContext(compositor->display, compositor->ctx);
-    XCompositeUnredirectSubwindows(compositor->display, compositor->root, CompositeRedirectAutomatic);
+    XCompositeUnredirectSubwindows(compositor->display, compositor->root, CompositeRedirectManual);
     XCloseDisplay(compositor->display);
 }
 
@@ -251,13 +250,14 @@ size_t glxc_handle_events(GLXCCompositor* compositor) {
 
         case CirculateNotify: {
             std::stable_sort(compositor->windows.begin(), compositor->windows.end(), [&event](const auto& a, const auto& b) {
-                if (a == event.xcirculate.window) {
-                    return event.xcirculate.place == PlaceOnBottom;
-                } else if (b == event.xcirculate.window) {
-                    return event.xcirculate.place == PlaceOnTop;
-                } else {
-                    return false;
+                if (a.parent == b.parent) {
+                    if (a == event.xcirculate.window) {
+                        return event.xcirculate.place == PlaceOnBottom;
+                    } else if (b == event.xcirculate.window) {
+                        return event.xcirculate.place == PlaceOnTop;
+                    }
                 }
+                return false;
             });
             break;
         }
@@ -302,27 +302,26 @@ size_t glxc_get_windows(GLXCCompositor* compositor, GLXCWindowInfo** ret) {
 
 void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window_info) {
     if (!window_info->pixmaps_valid) {
-        XWindowAttributes attrs;
-        XGetWindowAttributes(compositor->display, window_info->window, &attrs);
+        std::cout << compositor->fb_config_count << std::endl;
 
-        int format;
-        GLXFBConfig fb_config;
-
+        GLXFBConfig* fb_config;
         bool found = false;
-        for (int i = 0; i < compositor->fb_config_count; ++i) {
-            fb_config = compositor->fb_configs[i];
-
+        for (fb_config = compositor->fb_configs; fb_config != compositor->fb_configs + compositor->fb_config_count; ++fb_config) {
             int has_alpha;
-            glXGetFBConfigAttrib(compositor->display, fb_config, GLX_BIND_TO_TEXTURE_RGBA_EXT, &has_alpha);
-
-            XVisualInfo* visual = glXGetVisualFromFBConfig(compositor->display, fb_config);
-            if (attrs.depth != visual->depth) {
-                XFree(visual);
+            if (glXGetFBConfigAttrib(compositor->display, *fb_config, GLX_BIND_TO_TEXTURE_RGBA_EXT, &has_alpha) != Success || !has_alpha) {
                 continue;
             }
-            XFree(visual);
 
-            format = has_alpha ? GLX_TEXTURE_FORMAT_RGBA_EXT : GLX_TEXTURE_FORMAT_RGB_EXT;
+            int samples;
+            if (glXGetFBConfigAttrib(compositor->display, *fb_config, GLX_SAMPLES, &samples) != Success || samples > 1) {
+                continue;
+            }
+
+            int texture_targets;
+            if (glXGetFBConfigAttrib(compositor->display, *fb_config, GLX_BIND_TO_TEXTURE_TARGETS_EXT, &texture_targets) != Success || !(texture_targets & GLX_TEXTURE_2D_EXT)) {
+                continue;
+            }
+
             found = true;
             break;
         }
@@ -330,15 +329,15 @@ void glxc_bind_window_texture(GLXCCompositor* compositor, GLXCWindowInfo* window
             throw std::runtime_error("No suitable format found");
         }
 
-        const int pixmap_attributes[] = {
+        static constexpr int pixmap_attrs[] = {
             GLX_TEXTURE_TARGET_EXT,
             GLX_TEXTURE_2D_EXT,
             GLX_TEXTURE_FORMAT_EXT,
-            format,
+            GLX_TEXTURE_FORMAT_RGBA_EXT,
             None,
         };
         window_info->x_pixmap = XCompositeNameWindowPixmap(compositor->display, window_info->window);
-        window_info->gl_pixmap = glXCreatePixmap(compositor->display, fb_config, window_info->x_pixmap, pixmap_attributes);
+        window_info->gl_pixmap = glXCreatePixmap(compositor->display, *fb_config, window_info->x_pixmap, pixmap_attrs);
         window_info->pixmaps_valid = true;
     }
 

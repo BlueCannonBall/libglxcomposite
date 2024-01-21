@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -O3 -std=c++14 -shared -fPIC
+CXXFLAGS = -Wall -g -std=c++14 -shared -fPIC
 TARGET = libglxcomposite.so
 PREFIX = /usr/local
 
